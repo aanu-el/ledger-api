@@ -1,59 +1,65 @@
 import type { RequestHandler } from "express";
-import { z, type ZodType } from "zod";
+import type { ZodType } from "zod";
 import { problems, type FieldError } from "../problem.js";
 
-type Schemas = {
+/**
+ * Checks the request against Zod schemas before the route runs.
+ *
+ * Usage in a route:
+ *
+ *   const createAccountBody = z.object({ currency: z.string() });
+ *   type CreateAccountBody = z.infer<typeof createAccountBody>;
+ *
+ *   router.post("/accounts", validate({ body: createAccountBody }), (req, res) => {
+ *     const body = res.locals.body as CreateAccountBody;
+ *     ...
+ *   });
+ *
+ * All three parts (body, query, params) are checked before failing, so a bad
+ * request reports every problem in one response. Parsed values are stored on
+ * `res.locals` rather than written back to `req`, because Express 5 makes
+ * `req.query` read-only.
+ */
+export function validate(schemas: {
   body?: ZodType;
   query?: ZodType;
   params?: ZodType;
-};
-
-type Infer<S extends Schemas> = {
-  body: S["body"] extends ZodType ? z.output<S["body"]> : undefined;
-  query: S["query"] extends ZodType ? z.output<S["query"]> : undefined;
-  params: S["params"] extends ZodType ? z.output<S["params"]> : undefined;
-};
-
-declare global {
-  namespace Express {
-    interface Locals {
-      input?: unknown;
-    }
-  }
-}
-
-/**
- * Validates body/query/params against Zod schemas. Express 5 makes `req.query`
- * a read-only getter, so the parsed (and coerced) input is placed on
- * `res.locals.input` and read back with `getInput(res)`.
- */
-export function validate<S extends Schemas>(schemas: S): RequestHandler {
+}): RequestHandler {
   return (req, res, next) => {
     const errors: FieldError[] = [];
-    const out: Record<string, unknown> = {};
 
-    for (const key of ["body", "query", "params"] as const) {
-      const schema = schemas[key];
-      if (!schema) continue;
-      const result = schema.safeParse(req[key]);
-      if (result.success) {
-        out[key] = result.data;
-      } else {
-        for (const issue of result.error.issues) {
-          errors.push({ path: [key, ...issue.path].join("."), message: issue.message });
-        }
-      }
+    if (schemas.body) {
+      const result = schemas.body.safeParse(req.body);
+      if (result.success) res.locals.body = result.data;
+      else errors.push(...toFieldErrors("body", result.error.issues));
+    }
+
+    if (schemas.query) {
+      const result = schemas.query.safeParse(req.query);
+      if (result.success) res.locals.query = result.data;
+      else errors.push(...toFieldErrors("query", result.error.issues));
+    }
+
+    if (schemas.params) {
+      const result = schemas.params.safeParse(req.params);
+      if (result.success) res.locals.params = result.data;
+      else errors.push(...toFieldErrors("params", result.error.issues));
     }
 
     if (errors.length > 0) {
       next(problems.validation(errors));
       return;
     }
-    res.locals.input = out;
     next();
   };
 }
 
-export function getInput<S extends Schemas>(res: { locals: { input?: unknown } }): Infer<S> {
-  return res.locals.input as Infer<S>;
+function toFieldErrors(
+  part: "body" | "query" | "params",
+  issues: { path: PropertyKey[]; message: string }[],
+): FieldError[] {
+  return issues.map((issue) => ({
+    path: [part, ...issue.path.map(String)].join("."),
+    message: issue.message,
+  }));
 }

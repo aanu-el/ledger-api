@@ -3,6 +3,8 @@ import type { RequestHandler } from "express";
 
 export const REQUEST_ID_HEADER = "x-request-id";
 
+// pino-http types `req.id` as string | number | object. Ours is always a
+// string, and saying so here lets the rest of the code treat it as one.
 declare module "http" {
   interface IncomingMessage {
     id: string;

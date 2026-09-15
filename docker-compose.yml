@@ -1,12 +1,5 @@
 name: ledger-api
 
-x-app: &app
-  build: .
-  environment:
-    NODE_ENV: production
-    LOG_LEVEL: ${LOG_LEVEL:-info}
-    DATABASE_URL: postgres://ledger:ledger@postgres:5432/ledger
-
 services:
   postgres:
     image: postgres:16-alpine
@@ -24,21 +17,24 @@ services:
       timeout: 2s
       retries: 15
 
-  # Explicit, one-shot migration step. The API never migrates on boot.
+  # One-shot: applies pending migrations and exits. The API never migrates on boot.
   migrate:
-    <<: *app
+    build: .
     command: ["node", "dist/db/migrate.js"]
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://ledger:ledger@postgres:5432/ledger
     depends_on:
       postgres:
         condition: service_healthy
 
   api:
-    <<: *app
+    build: .
     environment:
       NODE_ENV: production
       LOG_LEVEL: ${LOG_LEVEL:-info}
-      DATABASE_URL: postgres://ledger:ledger@postgres:5432/ledger
       PORT: "3000"
+      DATABASE_URL: postgres://ledger:ledger@postgres:5432/ledger
     ports:
       - "${PORT:-3000}:3000"
     depends_on:

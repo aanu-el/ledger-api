@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import request from "supertest";
 import express from "express";
 import { z } from "zod";
-import { validate, getInput } from "../src/http/middleware/validate.js";
+import pino from "pino";
+import { validate } from "../src/http/middleware/validate.js";
 import { requestId } from "../src/http/middleware/request-id.js";
 import { errorHandler } from "../src/http/middleware/error-handler.js";
-import pino from "pino";
 
 /**
  * The validation middleware composed with the same request-id and error
@@ -13,10 +13,13 @@ import pino from "pino";
  * exactly this behaviour.
  */
 describe("validate middleware", () => {
-  const schemas = {
-    body: z.object({ amount: z.string().regex(/^\d+$/), note: z.string().max(5).optional() }),
-    query: z.object({ limit: z.coerce.number().int().min(1).max(100).default(20) }),
-  };
+  const bodySchema = z.object({
+    amount: z.string().regex(/^\d+$/),
+    note: z.string().max(5).optional(),
+  });
+  const querySchema = z.object({ limit: z.coerce.number().int().min(1).max(100).default(20) });
+  type Body = z.infer<typeof bodySchema>;
+  type Query = z.infer<typeof querySchema>;
 
   const app = express();
   app.use(requestId);
@@ -25,8 +28,10 @@ describe("validate middleware", () => {
     next();
   });
   app.use(express.json());
-  app.post("/_probe", validate(schemas), (_req, res) => {
-    res.json(getInput<typeof schemas>(res));
+  app.post("/_probe", validate({ body: bodySchema, query: querySchema }), (_req, res) => {
+    const body = res.locals.body as Body;
+    const query = res.locals.query as Query;
+    res.json({ body, query });
   });
   app.use(errorHandler);
 
