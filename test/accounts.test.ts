@@ -45,7 +45,7 @@ describe("accounts", () => {
     it("stores only a hash of the key, never the key itself", async () => {
       const { apiKey } = await issueApiKey(t.db, { tenantName: "acme" });
 
-      const rows = await t.pool.query<{ key_hash: string }>("select key_hash from api_keys");
+      const rows = await t.pool.query<{ key_hash: string }>("select "keyHash" from "ApiKey"");
       expect(rows.rows).toHaveLength(1);
       expect(rows.rows[0]!.key_hash).not.toContain(apiKey);
       expect(rows.rows[0]!.key_hash).toMatch(/^[0-9a-f]{64}$/);
