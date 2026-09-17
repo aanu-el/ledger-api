@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { sql } from "drizzle-orm";
 import type { Db } from "../../db/client.js";
 
 export type CheckStatus = "ok" | "unhealthy";
@@ -34,7 +33,7 @@ export function healthRouter(deps: { db: Db }): Router {
     const checks: HealthReport["checks"] = {};
 
     try {
-      await withTimeout(deps.db.execute(sql`select 1`), CHECK_TIMEOUT_MS);
+      await withTimeout(deps.db.$queryRaw`select 1`, CHECK_TIMEOUT_MS);
       checks.db = "ok";
     } catch {
       checks.db = "unhealthy";

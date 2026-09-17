@@ -1,4 +1,5 @@
 dist
 node_modules
-drizzle/meta
+src/generated
+prisma/migrations
 pnpm-lock.yaml

@@ -16,7 +16,7 @@ export async function setup(): Promise<void> {
     .start();
 
   const url = container.getConnectionUri();
-  await runMigrations(url);
+  runMigrations(url);
   process.env.TEST_DATABASE_URL = url;
 }
 

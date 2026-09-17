@@ -20,7 +20,7 @@ services:
   # One-shot: applies pending migrations and exits. The API never migrates on boot.
   migrate:
     build: .
-    command: ["node", "dist/db/migrate.js"]
+    command: ["node", "node_modules/prisma/build/index.js", "migrate", "deploy"]
     environment:
       NODE_ENV: production
       DATABASE_URL: postgres://ledger:ledger@postgres:5432/ledger
@@ -36,7 +36,7 @@ services:
       PORT: "3000"
       DATABASE_URL: postgres://ledger:ledger@postgres:5432/ledger
     ports:
-      - "${PORT:-3000}:3000"
+      - "${PORT:-3100}:3000"
     depends_on:
       migrate:
         condition: service_completed_successfully

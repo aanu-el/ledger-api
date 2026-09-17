@@ -1,9 +1,9 @@
-import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool, type PoolConfig } from "pg";
 import type { Logger } from "../logger.js";
-import * as schema from "./schema.js";
+import { PrismaClient } from "../generated/prisma/client.js";
 
-export type Db = NodePgDatabase<typeof schema>;
+export type Db = PrismaClient;
 
 export interface DbHandle {
   db: Db;
@@ -12,13 +12,17 @@ export interface DbHandle {
 }
 
 /**
- * One pool per process. `bigint` columns are returned as strings by `pg` by
- * default, which is what we want: balances never pass through a JS number.
+ * One pool per process, wrapped by Prisma through its `pg` driver adapter.
+ * Owning the pool ourselves (rather than letting Prisma create one) keeps
+ * `max`, timeouts and the error listener below under our control.
  *
  * The pool's `error` event fires when an *idle* client loses its connection
  * (Postgres restart, network blip). With no listener, Node treats it as an
  * uncaught exception and kills the process; with one, the client is discarded
  * and the next query simply reconnects. `/health` reports the outage instead.
+ *
+ * BigInt columns arrive as JS `bigint`; they are serialised to strings at the
+ * HTTP layer and never pass through a `number`.
  */
 export function createDb(
   connectionString: string,
@@ -29,6 +33,15 @@ export function createDb(
   pool.on("error", (err) => {
     logger?.warn({ err }, "idle database client errored; it will be replaced");
   });
-  const db = drizzle(pool, { schema });
-  return { db, pool, close: () => pool.end() };
+
+  const db = new PrismaClient({ adapter: new PrismaPg(pool) });
+
+  return {
+    db,
+    pool,
+    close: async () => {
+      await db.$disconnect();
+      await pool.end();
+    },
+  };
 }

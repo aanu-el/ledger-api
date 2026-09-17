@@ -1,4 +1,3 @@
-import { sql } from "drizzle-orm";
 import pino from "pino";
 import { createApp } from "../../src/app.js";
 import { createDb, type DbHandle } from "../../src/db/client.js";
@@ -30,9 +29,9 @@ export function createTestApp(overrides: { databaseUrl?: string } = {}) {
 async function truncateAll(handle: DbHandle): Promise<void> {
   const result = await handle.pool.query<{ tablename: string }>(
     `select tablename from pg_tables
-     where schemaname = 'public' and tablename not like '__drizzle%'`,
+     where schemaname = 'public' and tablename <> '_prisma_migrations'`,
   );
   if (result.rows.length === 0) return;
   const names = result.rows.map((r) => `"${r.tablename}"`).join(", ");
-  await handle.db.execute(sql.raw(`truncate table ${names} restart identity cascade`));
+  await handle.pool.query(`truncate table ${names} restart identity cascade`);
 }

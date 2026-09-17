@@ -1,9 +1,9 @@
 import { createApp } from "../app.js";
-import { loadConfig } from "../config/index.js";
+import { loadEnvConfig } from "../config/index.js";
 import { createDb } from "../db/client.js";
 import { createLogger } from "../logger.js";
 
-const config = loadConfig();
+const config = loadEnvConfig();
 const logger = createLogger({ level: config.LOG_LEVEL, pretty: config.NODE_ENV === "development" });
 const dbHandle = createDb(config.DATABASE_URL, { logger });
 

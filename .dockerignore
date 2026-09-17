@@ -7,3 +7,5 @@ coverage
 *.md
 .github
 test
+src/generated
+prisma/migrations/**/.DS_Store

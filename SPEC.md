@@ -114,9 +114,9 @@ The service ships with a Docker Compose environment, an integration test suite a
 ### Stack
 
 - TypeScript on Node 22, pnpm.
-- Express for HTTP, with an explicit three-layer structure: HTTP layer (routing, validation, auth, error mapping) → application services (use cases, transactions, invariants) → repositories (Drizzle queries). Domain rules live in services, never in route handlers.
+- Express for HTTP, with an explicit three-layer structure: HTTP layer (routing, validation, auth, error mapping) → application services (use cases, transactions, invariants) → data access (Prisma client). Domain rules live in services, never in route handlers.
 - Zod for request/response validation; the same schemas generate the OpenAPI document.
-- Drizzle ORM over Postgres with Drizzle's migration tooling. Raw SQL is used where locking semantics must be explicit.
+- Prisma 7 over Postgres (with the `pg` driver adapter so the pool is application-owned) and Prisma Migrate. Raw SQL (`$queryRaw`) is used where locking semantics must be explicit; constraints Prisma's schema language cannot express (`CHECK`, partial unique indexes) are written into the migration SQL by hand.
 - pg-boss for background jobs (Postgres-backed, `SKIP LOCKED`). The queue is accessed through a small internal `JobQueue` interface so a BullMQ adapter can be added later without touching services.
 - pino for structured logging.
 - Vitest, supertest, Testcontainers for tests.
