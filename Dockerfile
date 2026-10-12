@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 # postinstall runs `prisma generate`, which needs the schema present.
 COPY prisma ./prisma
-COPY prisma.config.ts ./
+COPY prisma7.config.ts ./
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile
 
@@ -16,7 +16,7 @@ COPY src ./src
 RUN pnpm build
 
 # ---- prod-deps: production dependencies only --------------------------------
-FROM node:22-alpine AS prod-deps
+FROM node:26-alpine AS prod-deps
 RUN corepack enable
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
