@@ -9,7 +9,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    // Present for the CLI; the runtime client never reads this file.
     url: process.env.DATABASE_URL ?? "",
   },
 });

@@ -1,6 +1,6 @@
 import pino from "pino";
 import { createApp } from "../../src/app.js";
-import { createDb, type DbHandle } from "../../src/db/client.js";
+import { createDb, type DbHandle } from "../../src/db/prisma.js";
 
 export function testDatabaseUrl(): string {
   const url = process.env.TEST_DATABASE_URL;

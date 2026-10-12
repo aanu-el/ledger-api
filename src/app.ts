@@ -1,5 +1,5 @@
 import express, { type Express } from "express";
-import type { Db } from "./db/client.js";
+import type { PrismaClient } from "./db/prisma.js";
 import type { Logger } from "./logger.js";
 import { requestId } from "./http/middleware/request-id.js";
 import { requestLogger } from "./http/middleware/request-logger.js";
@@ -7,7 +7,7 @@ import { errorHandler, notFoundHandler } from "./http/middleware/error-handler.j
 import { healthRouter } from "./http/routes/health.js";
 
 export interface AppDeps {
-  db: Db;
+  db: PrismaClient;
   logger: Logger;
 }
 
