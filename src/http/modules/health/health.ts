@@ -1,5 +1,5 @@
 import { Router } from "express";
-import type { PrismaClient } from "../../db/prisma.js";
+import type { PrismaClient } from "../../../db/prisma.js";
 
 /**
  * GET /health — 200 when the API is up and can reach the database, 503 otherwise.

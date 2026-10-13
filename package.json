@@ -27,6 +27,7 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "7",
+    "prisma": "7.10.0",
     "express": "^5.1.0",
     "pg": "^8.16.3",
     "pino": "^9.9.5",
@@ -43,7 +44,6 @@
     "eslint": "^9.36.0",
     "pino-pretty": "^13.1.1",
     "prettier": "^3.6.2",
-    "prisma": "7.10.0",
     "supertest": "^7.1.4",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2",
@@ -53,7 +53,9 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "@prisma/engines",
-      "prisma"
+      "prisma",
+      "esbuild"
     ]
-  }
+  },
+  "packageManager": "pnpm@10.28.1+sha512.7d7dbbca9e99447b7c3bf7a73286afaaf6be99251eb9498baefa7d406892f67b879adb3a1d7e687fc4ccc1a388c7175fbaae567a26ab44d1067b54fcb0d6a316"
 }

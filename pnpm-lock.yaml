@@ -26,6 +26,9 @@ importers:
       pino-http:
         specifier: ^10.5.0
         version: 10.5.0
+      prisma:
+        specifier: 7.10.0
+        version: 7.10.0(@types/react@19.3.0)(magicast@0.5.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)
       zod:
         specifier: ^4.1.11
         version: 4.6.5
@@ -57,9 +60,6 @@ importers:
       prettier:
         specifier: ^3.6.2
         version: 3.9.6
-      prisma:
-        specifier: 7.10.0
-        version: 7.10.0(@types/react@19.3.0)(magicast@0.5.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)
       supertest:
         specifier: ^7.1.4
         version: 7.2.2
