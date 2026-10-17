@@ -1,4 +1,5 @@
-import { defineConfig } from "prisma/config";
+import "dotenv/config";
+import { defineConfig, env } from "prisma/config";
 
 // Prisma 7 keeps connection details out of schema.prisma. The CLI (migrate,
 // studio) reads this file; the runtime client gets its connection from the
@@ -9,6 +10,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env.DATABASE_URL ?? "",
+    url: env("DATABASE_URL"),
   },
 });

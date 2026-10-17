@@ -9,7 +9,11 @@ describe("GET /health", () => {
     const db = {
       $queryRaw: () => Promise.resolve([]),
     } as unknown as PrismaClient;
-    const app = createApp({ db, logger: pino({ level: "silent" }) });
+    const app = createApp({
+      db,
+      logger: pino({ level: "silent" }),
+      jwtSecret: "a-test-secret-that-is-at-least-32-characters",
+    });
 
     const response = await request(app).get("/health");
 

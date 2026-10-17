@@ -6,8 +6,9 @@ import { createLogger } from "../logger.js";
 const config = loadEnvConfig();
 const logger = createLogger({ level: config.LOG_LEVEL, pretty: config.NODE_ENV === "development" });
 const dbClient = createPrismaClient(config.DATABASE_URL);
+const jwtSecret = config.JWT_SECRET;
 
-const app = createApp({ db: dbClient, logger });
+const app = createApp({ db: dbClient, logger, jwtSecret });
 
 const server = app.listen(config.PORT, () => {
   logger.info({ port: config.PORT, env: config.NODE_ENV }, "api listening");

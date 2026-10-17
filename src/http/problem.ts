@@ -71,4 +71,25 @@ export const problems = {
     }),
   internal: () =>
     new ProblemError({ slug: "internal", status: 500, title: "Internal Server Error" }),
+  conflict: (detail?: string) =>
+    new ProblemError({
+      slug: "conflict",
+      status: 409,
+      title: "Conflict",
+      ...(detail ? { detail } : {}),
+    }),
+  unauthorized: (detail?: string) =>
+    new ProblemError({
+      slug: "unauthorized",
+      status: 401,
+      title: "Unauthorized",
+      ...(detail ? { detail } : {}),
+    }),
+  forbidden: (detail?: string) =>
+    new ProblemError({
+      slug: "forbidden",
+      status: 403,
+      title: "Forbidden",
+      ...(detail ? { detail } : {}),
+    }),
 };
