@@ -16,3 +16,7 @@ export const updateAPIKeySchema = z.object({
   name: z.string().min(1).max(64),
 });
 export type UpdateAPIKeyInput = z.infer<typeof updateAPIKeySchema>;
+
+export const apiKeyParamsSchema = z.object({
+  id: z.string(),
+});

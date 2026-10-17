@@ -2,7 +2,11 @@ import { Router } from "express";
 import type { PrismaClient } from "../../../db/prisma.js";
 import { validate } from "../../middleware/validate.js";
 import { apiKeysController } from "./api-keys.controller.js";
-import { createAPIKeySchema, updateAPIKeySchema } from "./api-keys.validator.js";
+import {
+  apiKeyParamsSchema,
+  createAPIKeySchema,
+  updateAPIKeySchema,
+} from "./api-keys.validator.js";
 import { requireJwt } from "../../middleware/authentication.js";
 
 export function apiKeysRouter(deps: { db: PrismaClient; jwtSecret: string }): Router {
@@ -12,9 +16,13 @@ export function apiKeysRouter(deps: { db: PrismaClient; jwtSecret: string }): Ro
   router.use(requireJwt(deps.jwtSecret));
   router.post("/", validate({ body: createAPIKeySchema }), controller.createAPIKey);
   router.get("/", controller.listAPIKeys);
-  router.get("/:id", controller.getAPIKey);
-  router.patch("/:id", validate({ body: updateAPIKeySchema }), controller.updateAPIKey);
-  router.delete("/:id", controller.revokeAPIKey);
+  router.get("/:id", validate({ params: apiKeyParamsSchema }), controller.getAPIKey);
+  router.patch(
+    "/:id",
+    validate({ params: apiKeyParamsSchema, body: updateAPIKeySchema }),
+    controller.updateAPIKey,
+  );
+  router.delete("/:id", validate({ params: apiKeyParamsSchema }), controller.revokeAPIKey);
 
   return router;
 }

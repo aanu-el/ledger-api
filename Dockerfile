@@ -9,6 +9,7 @@ COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma
 COPY prisma.config.ts ./
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
+    DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ledger \
     pnpm install --frozen-lockfile
 
 # ---- build: compile TypeScript (including the generated Prisma client) ------
@@ -28,6 +29,7 @@ COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma
 COPY prisma.config.ts ./
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
+    DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ledger \
     pnpm install --frozen-lockfile --prod
 
 # ---- runtime: one image, several entrypoints --------------------------------

@@ -43,7 +43,7 @@ async function main() {
   }
 
   const created = await authService.createAPIKey(tenant.id, {
-    name: values.name!,
+    name: values.name,
     expiresAt: new Date(Date.now() + (days ?? 0) * 86_400_000),
   });
 
