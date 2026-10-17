@@ -1,4 +1,4 @@
-import type { RequestHandler } from "express";
+import type { RequestHandler, Response } from "express";
 import type { z, ZodType } from "zod";
 import { problems, type FieldError } from "../problem.js";
 
@@ -41,6 +41,6 @@ export function validate<S extends Schemas>(schemas: S): RequestHandler {
   };
 }
 
-export function getInput<S extends Schemas>(res: { locals: { input?: unknown } }): Infer<S> {
+export function getInput<S extends Schemas>(res: Response): Infer<S> {
   return res.locals.input as Infer<S>;
 }

@@ -31,7 +31,7 @@ export class AuthService {
           password: hashedPassword,
         },
       });
-      const accessToken = await this.createSession(tenant);
+      const accessToken = this.createSession(tenant);
 
       return {
         tenant: {
@@ -50,36 +50,32 @@ export class AuthService {
   }
 
   async signin(email: string, password: string) {
-    try {
-      const tenant = await this.deps.db.tenant.findUnique({
-        where: { email },
-      });
+    const tenant = await this.deps.db.tenant.findUnique({
+      where: { email },
+    });
 
-      if (!tenant) {
-        throw problems.unauthorized("Invalid email or password.");
-      }
-
-      const isPasswordValid = await bcrypt.compare(password, tenant.password);
-      if (!isPasswordValid) {
-        throw problems.unauthorized("Invalid email or password.");
-      }
-
-      const accessToken = await this.createSession(tenant);
-
-      return {
-        tenant: {
-          id: tenant.id,
-          name: tenant.name,
-          email: tenant.email,
-        },
-        accessToken,
-      };
-    } catch (error) {
-      throw error;
+    if (!tenant) {
+      throw problems.unauthorized("Invalid email or password.");
     }
+
+    const isPasswordValid = await bcrypt.compare(password, tenant.password);
+    if (!isPasswordValid) {
+      throw problems.unauthorized("Invalid email or password.");
+    }
+
+    const accessToken = this.createSession(tenant);
+
+    return {
+      tenant: {
+        id: tenant.id,
+        name: tenant.name,
+        email: tenant.email,
+      },
+      accessToken,
+    };
   }
 
-  private async createSession(tenant: Tenant) {
+  private createSession(tenant: Tenant) {
     const accessToken = jwt.sign(
       { tenantId: tenant.id, email: tenant.email },
       this.deps.jwtSecret,

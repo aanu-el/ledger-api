@@ -87,7 +87,7 @@ function rejectUnauthorized(res: Response, next: NextFunction, isJwt: boolean): 
 
 function isAuthenticatedTenant(
   payload: string | JwtPayload,
-): payload is JwtPayload & AuthenticatedTenant {
+): payload is { tenantId: string; email: string } {
   return (
     typeof payload === "object" &&
     payload !== null &&
