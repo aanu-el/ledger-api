@@ -2,7 +2,11 @@ import type { RequestHandler } from "express";
 import type { PrismaClient } from "../../../db/prisma.js";
 import { getInput } from "../../middleware/validate.js";
 import { APIKeysService } from "./api-keys.service.js";
-import { apiKeyParamsSchema, createAPIKeySchema, updateAPIKeySchema } from "./api-keys.validator.js";
+import {
+  apiKeyParamsSchema,
+  createAPIKeySchema,
+  updateAPIKeySchema,
+} from "./api-keys.validator.js";
 
 export function apiKeysController(deps: { db: PrismaClient }): {
   createAPIKey: RequestHandler;
