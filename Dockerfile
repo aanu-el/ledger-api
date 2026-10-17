@@ -1,5 +1,7 @@
 # ---- deps: full install for building ---------------------------------------
-FROM node:22-alpine AS deps
+ARG NODE_VERSION=24
+
+FROM node:${NODE_VERSION}-alpine AS deps
 RUN corepack enable
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
@@ -16,7 +18,7 @@ COPY src ./src
 RUN pnpm build
 
 # ---- prod-deps: production dependencies only --------------------------------
-FROM node:22-alpine AS prod-deps
+FROM node:${NODE_VERSION}-alpine AS prod-deps
 RUN corepack enable
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
@@ -32,7 +34,7 @@ RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
 # The same image runs `api`, `worker` and `migrate`; Compose and Render pick
 # the command. `prisma` ships as a runtime dependency so `migrate deploy`
 # can run from this image.
-FROM node:22-alpine AS runtime
+FROM node:${NODE_VERSION}-alpine AS runtime
 ENV NODE_ENV=production
 WORKDIR /app
 RUN addgroup -S app && adduser -S app -G app

@@ -1,13 +1,14 @@
 import { createApp } from "../app.js";
 import { loadEnvConfig } from "../config/index.js";
-import { createDb } from "../db/client.js";
+import { createPrismaClient } from "../db/prisma.js";
 import { createLogger } from "../logger.js";
 
 const config = loadEnvConfig();
 const logger = createLogger({ level: config.LOG_LEVEL, pretty: config.NODE_ENV === "development" });
-const dbHandle = createDb(config.DATABASE_URL, { logger });
+const dbClient = createPrismaClient(config.DATABASE_URL);
+const jwtSecret = config.JWT_SECRET;
 
-const app = createApp({ db: dbHandle.db, logger });
+const app = createApp({ db: dbClient, logger, jwtSecret });
 
 const server = app.listen(config.PORT, () => {
   logger.info({ port: config.PORT, env: config.NODE_ENV }, "api listening");
@@ -29,8 +30,8 @@ function shutdown(signal: NodeJS.Signals) {
   }, SHUTDOWN_GRACE_MS).unref();
 
   server.close(() => {
-    dbHandle
-      .close()
+    dbClient
+      .$disconnect()
       .then(() => {
         clearTimeout(forceExit);
         logger.info("shutdown complete");
